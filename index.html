@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>static map</title>
+		<meta charset = "utf-8">
+	</head>
+	<body>
+		<div id = "map" style = "width:500px;height:500px;">
+		</div><br>
+		<form id = "form_settings">
+			<span>Zoom: </span><input type = "text" id = "zoom"><br>
+			<span>Latitud: </span><input type = "text" id = "latitud"><br>
+			<span>Longitud: </span><input type = "text" id = "longitud"><br>
+			<span>Ancho: </span><input type = "text" id = "ancho"><br>
+			<span>alto: </span><input type = "text" id = "alto"><br>
+			<p style = "display:none;">Click on <span id = "click_x"></span>, <span id = "click_y"></span></p>
+			<input type = "submit">
+		</form>
+		<br><br>
+		<button id = "generate_hrq_static_map">generatic high resolution static map</button>
+		<input type = "radio" id = "radio_road" checked name = "type_static_map">&nbsp;calle	&nbsp;&nbsp;&nbsp;
+		<input type = "radio" id = "radio_satellite" name = "type_static_map">&nbsp;satelite 	&nbsp;&nbsp;&nbsp;
+		<input type = "radio" id = "radio_hybrid" name = "type_static_map">&nbsp;hybrid 	&nbsp;&nbsp;&nbsp;
+		<br>
+		<br><br>
+		<img src = "" id = "static_map" style = "display:none;">
+		<table id = "hq_map">
+		</table>
+		<script type="text/javascript" src = "js/jquery.js"></script>
+		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB7biho7IjCPS-tjPadgq3EJbP-BTEcZY4"></script>
+		<script type="text/javascript">
+			var lastLocation;
+			var infoWindow;
+			var map;
+			var bounds;
+			var superior_derecha, superior_izquierda, inferior_derecha, inferior_izquierda;
+			var jump = 0.00065929287153;
+			window.addEventListener("load", function(){
+				function initMap() {
+					lastLocation = {
+						lat: -34.397, 
+						lng: 150.644,
+						zoom: 16
+					};
+					$("#latitud").val(lastLocation.lat);
+					$("#longitud").val(lastLocation.lng);
+					$("#zoom").val(lastLocation.zoom);
+					map = new google.maps.Map(document.getElementById('map'), lastLocation);
+					infoWindow = new google.maps.InfoWindow({map: map});
+					// Try HTML5 geolocation.
+					if(navigator.geolocation){
+						navigator.geolocation.getCurrentPosition(function(position) {
+							var pos = {
+								lat: position.coords.latitude,
+								lng: position.coords.longitude,
+								zoom:16
+							};
+
+							infoWindow.setPosition(pos);
+							//infoWindow.setContent('Location found.');
+							map.setCenter(pos);
+							lastLocation = pos;
+							$("#latitud").val(lastLocation.lat);
+							$("#longitud").val(lastLocation.lng);
+							$("#zoom").val(lastLocation.zoom);
+							$("#ancho").val($("#map").css("width").substr(0, $("#map").css("width").indexOf("px")));
+							$("#alto").val($("#map").css("height").substr(0, $("#map").css("width").indexOf("px")));
+						}, function() {
+							handleLocationError(true, infoWindow, map.getCenter());
+						});
+					}else{
+						handleLocationError(false, infoWindow, map.getCenter());
+					}
+					map.addListener("zoom_changed", function(){
+						updateSystem();
+					});
+					map.addListener("center_changed", function(){
+						updateSystem();
+					});
+					map.addListener("bounds_changed", function(){
+						updateSystem();
+					});
+					/*
+					map.addListener("click", function(e){
+						
+						console.log(e.latLng.lat());
+						console.log(e.latLng.lng());
+						
+					});*/
+				}
+				function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+					infoWindow.setPosition(pos);
+					infoWindow.setContent(browserHasGeolocation ?
+					'Error: The Geolocation service failed.' :
+					'Error: Your browser doesn\'t support geolocation.');
+				}
+				$("#form_settings").submit(function(e){
+					e.preventDefault();
+					$("#map").css("width", $("#ancho").val()+"px").css("height", $("#alto").val()+"px");
+					lastLocation.lat = Number($("#latitud").val());
+					lastLocation.lng = Number($("#longitud").val());
+					lastLocation.zoom = Number($("#zoom").val());
+					//infoWindow.setPosition(lastLocation);
+					map.setCenter(lastLocation);
+					map.setZoom(lastLocation.zoom);
+				});
+				function updateSystem(){
+					$("#latitud").val(map.getCenter().lat());
+					$("#longitud").val(map.getCenter().lng());
+					bounds = map.getBounds();
+					$("#zoom").val(map.getZoom());
+					superior_derecha   = {lat:bounds.R.j, lng:bounds.j.R};
+					superior_izquierda = {lat:bounds.R.j, lng:bounds.j.j};
+					inferior_izquierda = {lat:bounds.R.R, lng:bounds.j.j};
+					inferior_derecha   = {lat:bounds.R.R, lng:bounds.j.R};
+				}
+				$("#generate_hrq_static_map").click(function(){
+					console.log("**************");
+					console.log("zoom: "+$("#zoom").val());
+					console.log("center:");
+					console.log("latitud => \t" + $("#latitud").val());
+					console.log("longitud => \t" + $("#longitud").val());
+					console.log("extremos: ");
+					console.log("norte => \t" + superior_izquierda.lat);
+					console.log("sur => \t\t" + inferior_izquierda.lat);
+					console.log("este => \t" + superior_derecha.lng);
+					console.log("oeste => \t" + inferior_izquierda.lng);
+
+					var toNorth = Array();
+					var toSouth = Array();
+					var toEast = Array();
+					var toWest = Array();
+
+					point = Number($("#latitud").val());
+					while(point <= superior_izquierda.lat){
+						point+=jump*2;
+						toNorth.push(point);
+					}
+					point = Number($("#latitud").val());
+					while(point >= inferior_izquierda.lat){
+						point-=jump*2;
+						toSouth.push(point);
+					}
+
+					point = Number($("#longitud").val());
+					while(point <= superior_derecha.lng){
+						point+=jump*2;
+						toEast.push(point);
+					}
+					point = Number($("#longitud").val());
+					while(point >= inferior_izquierda.lng){
+						point-=jump*2;
+						toWest.push(point);
+					}
+
+					toNorth.reverse();
+					toWest.reverse();
+
+					var rows =toNorth.concat([Number($("#latitud").val())]).concat(toSouth);
+					var cols =toWest.concat([Number($("#longitud").val())]).concat(toEast);
+
+					$("#hq_map").empty();
+					var zoomS=19;
+					for(c in rows){
+						var fila = document.createElement("tr");
+						for(v in cols){
+							var cell = document.createElement("td");
+							cell.innerHTML = "<img style = 'width:50px;height:50px;' src = 'https://maps.googleapis.com/maps/api/staticmap?center="+rows[c]+","+cols[v]+"&zoom="+zoomS+"&size="+$("#ancho").val()+"x"+$("#alto").val()+"&maptype="+($("#radio_satellite").prop("checked")?"satellite":($("#radio_hybrid").prop("checked")?"hybrid":"roadmap"))+"&key=AIzaSyB7biho7IjCPS-tjPadgq3EJbP-BTEcZY4'>"
+							fila.appendChild(cell);
+						}
+						$("#hq_map").append(fila);
+					}
+
+					$("#static_map").attr("src", "https://maps.googleapis.com/maps/api/staticmap?center="+$("#latitud").val()+","+$("#longitud").val()+"&zoom="+$("#zoom").val()+"&size="+$("#ancho").val()+"x"+$("#alto").val()+"&maptype="+($("#radio_satellite").prop("checked")?"satellite":($("#radio_hybrid").prop("checked")?"hybrid":"roadmap"))+"&key=AIzaSyB7biho7IjCPS-tjPadgq3EJbP-BTEcZY4");
+				});
+				initMap();
+			});
+		</script>
+	</body>
+</html>
