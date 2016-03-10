@@ -47,7 +47,6 @@
 					$("#zoom").val(lastLocation.zoom);
 					map = new google.maps.Map(document.getElementById('map'), lastLocation);
 					infoWindow = new google.maps.InfoWindow({map: map});
-					// Try HTML5 geolocation.
 					if(navigator.geolocation){
 						navigator.geolocation.getCurrentPosition(function(position) {
 							var pos = {
@@ -57,7 +56,6 @@
 							};
 
 							infoWindow.setPosition(pos);
-							//infoWindow.setContent('Location found.');
 							map.setCenter(pos);
 							lastLocation = pos;
 							$("#latitud").val(lastLocation.lat);
@@ -80,13 +78,6 @@
 					map.addListener("bounds_changed", function(){
 						updateSystem();
 					});
-					/*
-					map.addListener("click", function(e){
-						
-						console.log(e.latLng.lat());
-						console.log(e.latLng.lng());
-						
-					});*/
 				}
 				function handleLocationError(browserHasGeolocation, infoWindow, pos) {
 					infoWindow.setPosition(pos);
@@ -158,7 +149,7 @@
 
 					var rows =toNorth.concat([Number($("#latitud").val())]).concat(toSouth);
 					var cols =toWest.concat([Number($("#longitud").val())]).concat(toEast);
-
+					/*
 					$("#hq_map").empty();
 					var zoomS=19;
 					for(c in rows){
@@ -172,9 +163,23 @@
 					}
 
 					$("#static_map").attr("src", "https://maps.googleapis.com/maps/api/staticmap?center="+$("#latitud").val()+","+$("#longitud").val()+"&zoom="+$("#zoom").val()+"&size="+$("#ancho").val()+"x"+$("#alto").val()+"&maptype="+($("#radio_satellite").prop("checked")?"satellite":($("#radio_hybrid").prop("checked")?"hybrid":"roadmap"))+"&key=AIzaSyB7biho7IjCPS-tjPadgq3EJbP-BTEcZY4");
+					*/
+					$.ajax({
+						url:"engine.php",
+						type:"post",
+						data:{
+							rows:rows,
+							cols:cols,
+							maptype:($("#radio_satellite").prop("checked")?"satellite":($("#radio_hybrid").prop("checked")?"hybrid":"roadmap"))
+						},success:function(data){
+							window.location.href = "map.png";
+						},error:function(){
+						}
+					});
 				});
 				initMap();
 			});
 		</script>
 	</body>
+</html>
 </html>
