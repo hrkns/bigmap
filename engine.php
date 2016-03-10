@@ -75,12 +75,12 @@
 
 	foreach ($rows as $k1 => $row) {
 		foreach ($cols as $k2 => $col) {
-			//copy("https://maps.googleapis.com/maps/api/staticmap?center=".$row.",".$col."&zoom=19&size=".$ancho."x".$alto."&maptype=".$maptype."&key=AIzaSyB7biho7IjCPS-tjPadgq3EJbP-BTEcZY4", "img/".complete($k1, $lim1)."_".complete($k2, $lim2).".png");
+			copy("https://maps.googleapis.com/maps/api/staticmap?center=".$row.",".$col."&zoom=19&size=".$ancho."x".$alto."&maptype=".$maptype."&key=AIzaSyB7biho7IjCPS-tjPadgq3EJbP-BTEcZY4", "img/".complete($k1, $lim1)."_".complete($k2, $lim2).".png");
 		}
 
 		$last_img = "img/".complete($k1, $lim1)."_".complete("0", $lim2).".png";
 		for($i = 1; $i < $lim2; $i++){
-			//merge($last_img, "img/".complete($k1, $lim1)."_".complete($i, $lim2).".png", "img/"."row_".complete($k1, $lim1).".png");
+			merge($last_img, "img/".complete($k1, $lim1)."_".complete($i, $lim2).".png", "img/"."row_".complete($k1, $lim1).".png");
 			$last_img = "img/"."row_".complete($k1, $lim1).".png";
 		}
 	}
@@ -88,7 +88,7 @@
 	$last_row = "img/row_".complete(0, $lim1).".png";
 
 	for($i = 1; $i < $lim1; $i++){
-		//merge2($last_row, "img/row_".complete($i, $lim1).".png", "map.png");
+		merge2($last_row, "img/row_".complete($i, $lim1).".png", "map.png");
 		$last_row = "map.png";
 	}
 ?>
