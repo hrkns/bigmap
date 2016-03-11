@@ -1,4 +1,4 @@
-mini tool for get a in high resolution using google maps api
+mini tool for get a map in high resolution using google maps api
 
 you can put this in a XAMPP|LAMPP|WAMPP server or some equivalent
 
