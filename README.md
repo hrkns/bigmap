@@ -10,6 +10,6 @@ some issues:
 
 both issues could be fixed using imagemagick pecl for php (i haven't done it because i'm in windows right now and the pecl installation and use is giving to me some troubles)
 
-the process to merge the images for build the big map could be done using 
-this: http://php.net/manual/en/imagick.appendimages.php
-and this: http://stackoverflow.com/questions/5280813/how-do-you-append-images-that-are-already-created-with-appendimage
+the process to merge the images for build the big map could be done using these resources:
+- http://php.net/manual/en/imagick.appendimages.php
+- http://stackoverflow.com/questions/5280813/how-do-you-append-images-that-are-already-created-with-appendimage
